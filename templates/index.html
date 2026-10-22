@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home Energy Analytics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { background: #0b1220; color: #e2e8f0; }
+    .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+    .feature-card, .option-card { background: #1e293b; border: 1px solid #334155; transition: all 0.25s; }
+    .option-card:hover { transform: translateY(-4px); border-color: #10b981; }
+    .collapse-header { cursor: pointer; }
+    .collapse-body { display: none; }
+    .collapse-body.open { display: block; }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 50; }
+    .modal.open { display: flex; }
+    .modal-content { background: #1e293b; border-radius: 12px; max-width: 900px; width: 95%; max-height: 85vh; overflow: auto; position: relative; }
+  </style>
+</head>
+<body>
+
+<section id="landing" class="hero px-6 py-8">
+  <div class="max-w-5xl mx-auto text-center">
+    <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">Home Energy Analytics</h1>
+    <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10">
+      30-day smart electricity management. Track daily usage, weekly patterns, and stay within budget.
+    </p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 max-w-4xl mx-auto">
+      <div class="feature-card rounded-xl p-4"><div class="text-2xl font-bold text-emerald-400">20</div><div class="text-sm text-slate-400">Appliances</div></div>
+      <div class="feature-card rounded-xl p-4"><div class="text-2xl font-bold text-emerald-400">30</div><div class="text-sm text-slate-400">Days Data</div></div>
+      <div class="feature-card rounded-xl p-4"><div class="text-2xl font-bold text-emerald-400">Weekly</div><div class="text-sm text-slate-400">Insights</div></div>
+      <div class="feature-card rounded-xl p-4"><div class="text-2xl font-bold text-emerald-400">Budget</div><div class="text-sm text-slate-400">Tracking</div></div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
+      <div onclick="openSection('appliances')" class="option-card rounded-xl p-6 cursor-pointer text-left"><h3 class="font-semibold text-lg">View Appliance Data</h3><p class="text-sm text-slate-400 mt-1">20 appliances · click for 30-day detail</p></div>
+      <div onclick="openSection('energy')" class="option-card rounded-xl p-6 cursor-pointer text-left"><h3 class="font-semibold text-lg">Energy Consumption Analysis</h3><p class="text-sm text-slate-400 mt-1">Best time & peak hour included</p></div>
+      <div onclick="openSection('budget')" class="option-card rounded-xl p-6 cursor-pointer text-left"><h3 class="font-semibold text-lg">Budget Analysis</h3><p class="text-sm text-slate-400 mt-1">Category cost ranking</p></div>
+      <div onclick="openSection('insights')" class="option-card rounded-xl p-6 cursor-pointer text-left"><h3 class="font-semibold text-lg">Smart Insights</h3><p class="text-sm text-slate-400 mt-1">Weekly analysis + overall stats</p></div>
+      <div onclick="openSection('report')" class="option-card rounded-xl p-6 cursor-pointer text-left"><h3 class="font-semibold text-lg">Complete Report</h3><p class="text-sm text-slate-400 mt-1">Bar chart + category analysis</p></div>
+      <div onclick="openSection('comparison')" class="option-card rounded-xl p-6 cursor-pointer text-left"><h3 class="font-semibold text-lg">Budget vs Consumption</h3><p class="text-sm text-slate-400 mt-1">Expected vs actual</p></div>
+    </div>
+  </div>
+</section>
+
+<div id="content" class="hidden min-h-screen p-6 md:p-10">
+  <button onclick="showLanding()" class="mb-6 text-emerald-400 hover:text-emerald-300">← Back to Home</button>
+  <div id="section-appliances" class="section hidden"></div>
+  <div id="section-energy" class="section hidden"></div>
+  <div id="section-budget" class="section hidden"></div>
+  <div id="section-insights" class="section hidden"></div>
+  <div id="section-report" class="section hidden"></div>
+  <div id="section-comparison" class="section hidden"></div>
+</div>
+
+<!-- Modal for 30-day detail -->
+<div id="modal" class="modal" onclick="if(event.target===this) closeModal()">
+  <div class="modal-content p-6">
+    <button onclick="closeModal()" class="absolute top-3 right-4 text-2xl text-slate-400 hover:text-white">&times;</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+function showLanding() {
+  document.getElementById("landing").style.display = "flex";
+  document.getElementById("content").classList.add("hidden");
+}
+function openSection(name) {
+  document.getElementById("landing").style.display = "none";
+  document.getElementById("content").classList.remove("hidden");
+  document.querySelectorAll(".section").forEach(s => s.classList.add("hidden"));
+  document.getElementById("section-" + name).classList.remove("hidden");
+  if (name === "appliances") loadAppliances();
+  if (name === "energy") loadEnergy();
+  if (name === "budget") loadBudget();
+  if (name === "insights") loadInsights();
+  if (name === "report") loadReport();
+  if (name === "comparison") loadComparison();
+}
+
+function closeModal() {
+  document.getElementById("modal").classList.remove("open");
+}
+
+async function loadAppliances() {
+  const res = await fetch("/api/appliances");
+  const data = await res.json();
+  let html = `<h2 class="text-3xl font-bold mb-6">Appliance Data <span class="text-slate-400 text-xl">(20 appliances)</span></h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">`;
+  data.forEach(a => {
+    html += `<div onclick="loadApplianceDetail(${a.id})" class="bg-slate-800 rounded-xl p-5 cursor-pointer hover:bg-slate-700 border border-slate-700">
+      <div class="font-semibold text-lg">${a.name}</div>
+      <div class="text-sm text-slate-400">${a.category}</div>
+      <div class="mt-3 text-sm">Avg Hours: <strong>${a.avg_hours}</strong> / day</div>
+      <div class="text-sm">Total Energy: <strong>${a.total_energy} kWh</strong></div>
+      <div class="text-sm">Cost: <strong>₹${a.total_cost}</strong></div>
+      <div class="text-xs text-emerald-400 mt-2">Click for 30-day detail →</div>
+    </div>`;
+  });
+  html += `</div>`;
+  document.getElementById("section-appliances").innerHTML = html;
+}
+
+async function loadApplianceDetail(id) {
+  const res = await fetch("/api/appliance/" + id);
+  const d = await res.json();
+  let html = `<h3 class="text-2xl font-bold mb-2">${d.name} — 30 Day Detail</h3>
+    <p class="mb-4 text-slate-400">Category: ${d.category} · Total: ${d.total_energy} kWh · ₹${d.total_cost}</p>
+    <div class="overflow-x-auto rounded-xl border border-slate-700 max-h-[60vh]">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-800 sticky top-0"><tr>
+          <th class="p-2 text-left">Date</th><th class="p-2 text-right">Hours</th><th class="p-2 text-right">Energy (kWh)</th>
+          <th class="p-2">Start</th><th class="p-2">End</th><th class="p-2">Peak</th>
+        </tr></thead><tbody>`;
+  d.daily.forEach(day => {
+    html += `<tr class="border-b border-slate-800"><td class="p-2">${day.date}</td><td class="p-2 text-right">${day.hours}</td><td class="p-2 text-right">${day.energy}</td><td class="p-2">${day.start_time}</td><td class="p-2">${day.end_time}</td><td class="p-2">${day.peak_time}</td></tr>`;
+  });
+  html += `</tbody></table></div>`;
+  document.getElementById("modal-body").innerHTML = html;
+  document.getElementById("modal").classList.add("open");
+}
+
+async function loadEnergy() {
+  const res = await fetch("/api/energy");
+  const data = await res.json();
+  let html = `<h2 class="text-3xl font-bold mb-6">Energy Consumption Analysis</h2>
+    <div class="overflow-x-auto rounded-xl border border-slate-700">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-800"><tr>
+          <th class="p-3 text-left">Appliance</th><th class="p-3 text-right">Power</th><th class="p-3 text-right">Avg Hours</th>
+          <th class="p-3 text-right">Total kWh</th><th class="p-3 text-right">Cost</th>
+          <th class="p-3">Best Time</th><th class="p-3">Peak Hour</th><th class="p-3 text-center">Eff.</th>
+        </tr></thead><tbody>`;
+  data.forEach(a => {
+    html += `<tr class="border-b border-slate-800"><td class="p-3">${a.name}</td><td class="p-3 text-right">${a.power} W</td><td class="p-3 text-right">${a.avg_hours}</td><td class="p-3 text-right">${a.total_energy}</td><td class="p-3 text-right">₹${a.total_cost}</td><td class="p-3">${a.best_time}</td><td class="p-3">${a.peak_hour}</td><td class="p-3 text-center">${a.efficiency}</td></tr>`;
+  });
+  html += `</tbody></table></div>`;
+  document.getElementById("section-energy").innerHTML = html;
+}
+
+async function loadBudget() {
+  const [sumRes, catRes] = await Promise.all([fetch("/api/summary"), fetch("/api/category")]);
+  const s = await sumRes.json();
+  const cats = await catRes.json();
+  const color = s.remaining >= 0 ? "text-green-400" : "text-red-400";
+  let html = `<h2 class="text-3xl font-bold mb-6">Budget Analysis</h2>
+    <div class="grid md:grid-cols-3 gap-4 mb-8 max-w-3xl">
+      <div class="bg-slate-800 rounded-xl p-6"><div class="text-slate-400">Monthly Budget</div><div class="text-3xl font-bold">₹${s.budget}</div></div>
+      <div class="bg-slate-800 rounded-xl p-6"><div class="text-slate-400">Estimated Cost</div><div class="text-3xl font-bold text-yellow-400">₹${s.totalCost}</div></div>
+      <div class="bg-slate-800 rounded-xl p-6"><div class="text-slate-400">Status</div><div class="text-2xl font-bold ${color}">${s.status}</div></div>
+    </div>
+    <h3 class="text-xl font-semibold mb-3">Category Cost (High → Low)</h3>
+    <div class="space-y-2 max-w-md">`;
+  cats.forEach(c => {
+    html += `<div class="flex justify-between bg-slate-800 rounded-lg px-4 py-2"><span>${c.category}</span><span class="font-semibold">₹${c.cost}</span></div>`;
+  });
+  html += `</div>`;
+  document.getElementById("section-budget").innerHTML = html;
+}
+
+async function loadInsights() {
+  const [insRes, weekRes, sumRes] = await Promise.all([fetch("/api/insights"), fetch("/api/weekly"), fetch("/api/summary")]);
+  const ins = await insRes.json();
+  const weeks = await weekRes.json();
+  const sum = await sumRes.json();
+
+  let html = `<h2 class="text-3xl font-bold mb-6">Smart Energy Insights</h2>
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-slate-800 rounded-xl p-6">
+        <div class="text-slate-400 text-sm">Total Energy</div>
+        <div class="text-2xl font-bold text-emerald-400">${sum.totalEnergy} kWh</div>
+        <div class="mt-4 text-slate-400 text-sm">Total Cost</div>
+        <div class="text-2xl font-bold text-yellow-400">₹${ins.total_cost}</div>
+        <div class="mt-4 text-slate-400 text-sm">Highest Consumer</div>
+        <div class="text-xl font-bold text-orange-400">${ins.highestConsumer}</div>
+        <div class="text-sm">${ins.highestEnergy} kWh</div>
+      </div>
+      <div class="bg-slate-800 rounded-xl p-6">
+        <div class="font-semibold mb-3">High Power (≥1000W)</div>
+        <ul class="list-disc list-inside text-sm space-y-1 max-h-48 overflow-y-auto">
+          ${ins.highPower.map(n => `<li>${n}</li>`).join("") || "<li>None</li>"}
+        </ul>
+      </div>
+    </div>
+    <h3 class="text-2xl font-semibold mb-4">Weekly Analysis</h3>`;
+
+  for (let w = 1; w <= 4; w++) {
+    const data = weeks[w];
+    html += `<div class="mb-4 border border-slate-700 rounded-xl overflow-hidden">
+      <div class="collapse-header bg-slate-800 px-5 py-4 flex justify-between items-center" onclick="this.nextElementSibling.classList.toggle('open')">
+        <span class="font-semibold">Week ${w}</span>
+        <span class="text-sm text-slate-400">${data.total_energy} kWh · ₹${data.total_cost}</span>
+      </div>
+      <div class="collapse-body bg-slate-900 px-5 py-4">
+        <p class="text-sm text-slate-400 mb-3">Top 5 by energy this week:</p>
+        <ol class="list-decimal list-inside space-y-1 mb-4">
+          ${data.top5.map(t => `<li>${t.name} — ${t.energy} kWh</li>`).join("")}
+        </ol>
+        <p class="text-sm text-emerald-400">Recommendation: ${data.recommendation}</p>
+      </div>
+    </div>`;
+  }
+
+  html += `<div class="mt-6 bg-slate-800 rounded-xl p-5">
+    <h4 class="font-semibold mb-2">General Recommendations</h4>
+    <ul class="list-disc list-inside text-sm space-y-1">
+      ${ins.recommendations.map(r => `<li>${r}</li>`).join("")}
+    </ul>
+  </div>`;
+
+  document.getElementById("section-insights").innerHTML = html;
+}
+
+async function loadReport() {
+  try {
+    const [repRes, catRes, energyRes] = await Promise.all([
+      fetch("/api/report"),
+      fetch("/api/category"),
+      fetch("/api/category-energy")
+    ]);
+    const d = await repRes.json();
+    const cats = await catRes.json();
+    const energyCats = await energyRes.json();
+
+    let catHtml = `<div class="grid md:grid-cols-2 gap-8 mt-8">
+      <div>
+        <h3 class="text-xl font-semibold mb-3">Category Analysis (by Cost)</h3>
+        <div class="space-y-2">`;
+    cats.forEach(c => {
+      catHtml += `<div class="flex justify-between bg-slate-800 rounded-lg px-4 py-2"><span>${c.category}</span><span class="font-semibold">₹${c.cost}</span></div>`;
+    });
+    catHtml += `</div></div>
+      <div>
+        <h3 class="text-xl font-semibold mb-3">Category Analysis (by Power Consumption)</h3>
+        <div class="space-y-2">`;
+    energyCats.forEach(c => {
+      catHtml += `<div class="flex justify-between bg-slate-800 rounded-lg px-4 py-2"><span>${c.category}</span><span class="font-semibold">${c.energy} kWh</span></div>`;
+    });
+    catHtml += `</div></div></div>`;
+
+    document.getElementById("section-report").innerHTML = `
+      <h2 class="text-3xl font-bold mb-6">Complete Report</h2>
+      <div class="bg-slate-800 rounded-xl p-6 mb-6 max-w-3xl">
+        <canvas id="reportChart" height="120"></canvas>
+      </div>
+      <p class="text-slate-300 max-w-3xl leading-relaxed mb-6">${d.paragraph || ""}</p>
+      <div class="text-sm text-slate-400 mb-4">Hover over bars to see max day & average details.</div>
+      <div id="hover-info" class="mt-2 text-sm text-emerald-300 mb-6"></div>
+      ${catHtml}`;
+
+    const ctx = document.getElementById("reportChart").getContext("2d");
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: d.chart_data.map(x => x.name),
+        datasets: [{ label: "Total Energy (kWh)", data: d.chart_data.map(x => x.energy), backgroundColor: "#10b981" }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { color: "#94a3b8" } }, x: { ticks: { color: "#94a3b8", maxRotation: 45 } } },
+        onHover: (e, elements) => {
+          const info = document.getElementById("hover-info");
+          if (elements.length && info) {
+            const idx = elements[0].index;
+            const name = d.chart_data[idx].name;
+            info.innerHTML = `<strong>${name}</strong> — Max day: ${d.max_day.date} (${d.max_day.energy} kWh by ${d.max_day.appliance}) · Average daily: ${d.avg_daily} kWh`;
+          } else if (info) info.innerHTML = "";
+        }
+      }
+    });
+  } catch (err) {
+    document.getElementById("section-report").innerHTML = `<div class="text-red-400">Error loading report: ${err.message}</div>`;
+    console.error(err);
+  }
+}
+
+async function loadComparison() {
+  const res = await fetch("/api/budget-comparison");
+  const d = await res.json();
+  const color = d.difference >= 0 ? "text-green-400" : "text-red-400";
+  document.getElementById("section-comparison").innerHTML = `
+    <h2 class="text-3xl font-bold mb-6">Expected Budget vs Real Consumption</h2>
+    <div class="grid md:grid-cols-3 gap-4 max-w-3xl">
+      <div class="bg-slate-800 rounded-xl p-6 text-center"><div class="text-slate-400 text-sm">Expected Budget</div><div class="text-3xl font-bold mt-2">₹${d.expectedBudget}</div></div>
+      <div class="bg-slate-800 rounded-xl p-6 text-center"><div class="text-slate-400 text-sm">Actual Cost</div><div class="text-3xl font-bold mt-2 text-yellow-400">₹${d.realConsumptionCost}</div></div>
+      <div class="bg-slate-800 rounded-xl p-6 text-center"><div class="text-slate-400 text-sm">Difference</div><div class="text-3xl font-bold mt-2 ${color}">₹${Math.abs(d.difference)}</div><div class="text-sm">${d.status}</div></div>
+    </div>`;
+}
+</script>
+</body>
+</html>
