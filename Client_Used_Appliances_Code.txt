@@ -1,0 +1,110 @@
+HOME ENERGY ANALYTICS – CLIENT USED APPLIANCES DISPLAY
+Source: Home_Energy_Analytics_Fixed.zip
+
+IMPORTANT
+The current ZIP already saves each logged-in client's usage separately in:
+data/users/<username>/usage.csv
+The existing screen displays usage entries for the selected date. It does NOT currently build a separate all-time unique "Used Appliances" list. The code below is the original project code responsible for loading the client's saved usage and displaying the selected date's used appliances.
+
+============================================================
+1. C++: SAVE CLIENT USAGE TO THEIR OWN CSV FILE
+File: main.cpp
+============================================================
+
+void saveUsage(const string &u){
+ ofstream f(userDir(u)+"/usage.csv"); f<<"id,date,name,hours,watts,category\n";
+ for(auto &x:users[u].usages)f<<x.id<<","<<x.date<<","<<x.name<<","<<fixed<<setprecision(2)<<x.hours<<","<<x.watts<<","<<categoryOf(u,x.name)<<"\n";
+}
+
+============================================================
+2. C++: LOAD THAT CLIENT'S SAVED USAGE DATA
+File: main.cpp
+============================================================
+
+ { ifstream f(dir+"/usage.csv"); string line; getline(f,line);
+   while(getline(f,line)){ if(trim(line).empty())continue; auto v=splitCsv(line,6);
+     Usage x; x.id=atoi(v[0].c_str()); x.date=v[1]; x.name=v[2]; x.hours=atof(v[3].c_str()); x.watts=atoi(v[4].c_str());
+     if(!validDate(x.date)||x.name.empty()||x.watts<=0||x.hours<=0||x.hours>24)continue;
+     x.daily=x.watts*x.hours/1000.0; d.usages.push_back(x); d.nextId=max(d.nextId,x.id+1); } }
+
+============================================================
+3. C++: SEND SELECTED DATE'S USAGE TO THE FRONTEND
+File: main.cpp – stateJson()
+============================================================
+
+ o<<"],\"entries\":["; bool first=true;
+ for(auto &x:d.usages)if(x.date==day){ if(!first)o<<","; first=false; count++; daily+=x.daily;
+  o<<"{\"id\":"<<x.id<<",\"date\":\""<<x.date<<"\",\"name\":\""<<jsonEscape(x.name)<<"\",\"hours\":"<<x.hours<<",\"watts\":"<<x.watts<<",\"daily\":"<<x.daily<<",\"cost\":"<<x.daily*TARIFF<<"}"; }
+
+============================================================
+4. C++: RETURN THE LOGGED-IN CLIENT'S STATE
+File: main.cpp – API route
+============================================================
+
+     if(method=="GET"&&route=="/api/state"){
+      string date; size_t q=path.find("date="); if(q!=string::npos)date=path.substr(q+5,10);
+      sendResponse(client,"200 OK",JSON,stateJson(u,date));
+     }
+
+============================================================
+5. HTML: USED APPLIANCES DISPLAY AREA
+File: templates/index.html
+============================================================
+
+<!-- Existing entries area in the project -->
+<div id="entries"></div>
+
+============================================================
+6. JAVASCRIPT: FETCH CLIENT DATA AND REFRESH DISPLAY
+File: templates/index.html
+============================================================
+
+async function refresh(){
+ const date=$('usageDate')?.value||localToday();
+ state=await api('/api/state?date='+date);
+ // Other dashboard fields are updated here...
+ renderEntries();
+}
+
+============================================================
+7. JAVASCRIPT: DISPLAY THE CLIENT'S USED APPLIANCES
+File: templates/index.html
+============================================================
+
+function renderEntries(){
+ let el=$('entries');
+ if(!state.entries.length){
+  el.className='empty';
+  el.textContent='No usage recorded for this day yet.';
+  return;
+ }
+ el.className='table-wrap';
+ el.innerHTML=`<table>
+ <thead><tr>
+ <th>Date</th><th>Appliance</th><th>Approx. hours</th>
+ <th>Power</th><th>Energy</th><th>Cost</th><th></th>
+ </tr></thead>
+ <tbody>${state.entries.map(e=>`
+ <tr>
+ <td>${e.date}</td>
+ <td><b>${e.name}</b></td>
+ <td>${e.hours.toFixed(1)} h</td>
+ <td>${e.watts} W</td>
+ <td>${e.daily.toFixed(3)} kWh</td>
+ <td>${money(e.daily*state.tariff)}</td>
+ <td><button class="secondary-btn" onclick="removeEntry(${e.id})">Remove</button></td>
+ </tr>`).join('')}</tbody></table>
+ <p class="hint">Approximate hours × typical appliance wattage. Add the same appliance again if you want to record another entry.</p>`;
+}
+
+============================================================
+8. HTML SECTION WHERE THE USAGE TABLE IS PLACED
+============================================================
+
+<div class="panel">
+ <h3>Today's Appliance Usage</h3>
+ <div id="entries"></div>
+</div>
+
+NOTE
+The final HTML wrapper above is a suggested heading/container for the existing #entries element. The original ZIP already uses the #entries element; it is rendered from state.entries by renderEntries(). The current backend filters entries by the selected date. To show every appliance a client has ever used (unique names across all dates), the backend response and frontend rendering would need an additional all-history list.

@@ -1,0 +1,77 @@
+FEATURE: NEXT / PREVIOUS PAGE NAVIGATION
+Project: Home Energy Analytics and Budget Advisor
+Source: home_energy_cpp/templates/index.html from Home_Energy_Analytics_Fixed.zip
+
+This feature adds navigation controls at the bottom of each project page. The user can scroll down and move to the next page or return to the previous page. It also provides a Complete Report shortcut.
+
+1. CSS CODE
+
+.page-flow{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:22px 0 8px;padding:15px;background:rgba(8,18,31,.62);border:1px solid #34495b;border-radius:14px}
+.page-flow .flow-actions{display:flex;gap:9px;flex-wrap:wrap}
+.page-flow .flow-label{color:#9aafbd;font-size:13px;line-height:1.5}
+.page-flow button{border-radius:10px;padding:10px 14px}
+.flow-report{background:#263b4a;border:1px solid #4d6878;color:#d9fbe9}
+.flow-next{background:linear-gradient(90deg,#059669,#10b981);color:white}
+.flow-prev{background:#172638;border:1px solid #496174;color:#dbeafe}
+
+2. JAVASCRIPT CODE
+
+const flowPages=[
+  {id:'appliancePage',name:'My Appliances'},
+  {id:'energyPage',name:'My Electricity Usage'},
+  {id:'budgetPage',name:'My Budget & Savings'},
+  {id:'solarPage',name:'Solar Energy Management'},
+  {id:'insightsPage',name:'BijliWise – Kam Bijli, Zyada Bachat'},
+  {id:'reportPage',name:'Complete Report'}
+];
+
+function addPageFlow(){
+  flowPages.forEach((item,index)=>{
+    const page=$(item.id);
+    if(!page||page.querySelector('.page-flow'))return;
+
+    const nav=document.createElement('div');
+    nav.className='page-flow';
+
+    const prev=index>0?flowPages[index-1]:null;
+    const next=index<flowPages.length-1?flowPages[index+1]:null;
+
+    nav.innerHTML=`
+      <div class="flow-label">
+        ${index+1} of ${flowPages.length} ·
+        ${next?'Next: '+next.name:'You have reached the final report.'}
+      </div>
+      <div class="flow-actions">
+        ${prev?`<button class="flow-prev" onclick="openPage('${prev.id}')">← Previous</button>`:''}
+        <button class="flow-report" onclick="openPage('reportPage')">📋 Complete Report</button>
+        ${next?`<button class="flow-next" onclick="openPage('${next.id}')">Next: ${next.name} →</button>`:`<button class="flow-next" onclick="goHome()">Back to Home</button>`}
+      </div>`;
+
+    page.appendChild(nav);
+  });
+}
+
+function openPage(id){
+  $('homePage').classList.add('hidden');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  $(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function goHome(){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  $('homePage').classList.remove('hidden');
+  window.scrollTo(0,0);
+}
+
+3. FUNCTION CALL
+
+The feature is activated after the usage date is initialized and its change listener is registered:
+
+$('usageDate').value=localToday();
+$('usageDate').addEventListener('change',()=>refresh());
+addPageFlow();
+
+IMPORTANT
+
+The code above is extracted from the supplied project ZIP. The page IDs and page names must match the existing HTML sections. The helper function $() is already defined elsewhere in the project and is used by this navigation code.

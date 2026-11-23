@@ -1,0 +1,216 @@
+HOME ENERGY ANALYTICS – ADD YOUR OWN APPLIANCE FEATURE
+
+This is the feature code used in Home_Energy_Analytics_Fixed.zip.
+It includes the frontend form, JavaScript submission, C++ API route, and per-user CSV saving/loading.
+
+============================================================
+1. C++ DATA STRUCTURES
+============================================================
+
+struct Appliance { int id; string name; string category; int watts; int standby; string efficiency; string priority; string status; };
+struct Usage     { int id; string date; string name; double hours; int watts; double daily; };
+struct UserData  { vector<Appliance> custom; vector<Usage> usages; bool solar = false; int nextId = 1; };
+
+============================================================
+2. SAVE CUSTOM APPLIANCES IN CSV
+============================================================
+
+void saveCustom(const string &u){
+ ofstream f(userDir(u)+"/custom_appliances.csv");
+ f<<"name,category,watts,standby_watts,efficiency,priority,status\n";
+ for(auto &a:users[u].custom)
+  f<<a.name<<","<<a.category<<","<<a.watts<<","<<a.standby<<","<<a.efficiency<<","<<a.priority<<","<<a.status<<"\n";
+}
+
+============================================================
+3. LOAD SAVED CUSTOM APPLIANCES
+============================================================
+
+UserData &loadUser(const string &u){
+ if(users.count(u))return users[u];
+ UserData d;
+ string dir=userDir(u);
+ fs::create_directories(dir);
+ { ifstream f(dir+"/settings.txt"); string s; if(f>>s)d.solar=(s=="yes"); }
+ { ifstream f(dir+"/custom_appliances.csv"); string line; getline(f,line);
+   while(getline(f,line)){
+     if(trim(line).empty())continue;
+     auto v=splitCsv(line,7);
+     Appliance a;
+     a.id=1000+(int)d.custom.size();
+     a.name=v[0];
+     a.category=v[1];
+     a.watts=atoi(v[2].c_str());
+     a.standby=atoi(v[3].c_str());
+     a.efficiency=v[4];
+     a.priority=v[5];
+     a.status=v[6].empty()?"ON":v[6];
+     if(!a.name.empty()&&a.watts>0)d.custom.push_back(a);
+   }
+ }
+ { ifstream f(dir+"/usage.csv"); string line; getline(f,line);
+   while(getline(f,line)){
+     if(trim(line).empty())continue;
+     auto v=splitCsv(line,6);
+     Usage x;
+     x.id=atoi(v[0].c_str()); x.date=v[1]; x.name=v[2];
+     x.hours=atof(v[3].c_str()); x.watts=atoi(v[4].c_str());
+     if(!validDate(x.date)||x.name.empty()||x.watts<=0||x.hours<=0||x.hours>24)continue;
+     x.daily=x.watts*x.hours/1000.0;
+     d.usages.push_back(x);
+     d.nextId=max(d.nextId,x.id+1);
+   }
+ }
+ users[u]=d;
+ return users[u];
+}
+
+vector<Appliance> catalogueFor(const string &u){
+ vector<Appliance> c=DEFAULT_APPLIANCES;
+ for(auto &a:users[u].custom)c.push_back(a);
+ return c;
+}
+
+============================================================
+4. C++ API ROUTE – ADD CUSTOM APPLIANCE
+============================================================
+
+else if(method=="POST"&&route=="/api/custom-appliance"){
+ auto m=parseForm(body);
+ Appliance a;
+ a.id=1000+(int)d.custom.size();
+ a.name=trim(m["name"]);
+ a.category=trim(m["category"]);
+ a.watts=atoi(m["watts"].c_str());
+ a.standby=atoi(m["standby"].c_str());
+ a.efficiency=trim(m["efficiency"]);
+ a.priority=trim(m["priority"]);
+ a.status=trim(m["status"]);
+ if(a.status.empty())a.status="ON";
+ bool dup=false;
+ for(auto &x:catalogueFor(u))
+  if(lowerText(x.name)==lowerText(a.name))dup=true;
+ if(a.name.empty()||a.category.empty()||a.watts<=0||a.standby<0||
+    !cleanField(a.name)||!cleanField(a.category)||!cleanField(a.efficiency)||
+    !cleanField(a.priority)||dup)
+  sendResponse(client,"400 Bad Request",JSON,
+   errJson("Enter valid details. The appliance name must be new (no commas) and power must be positive."));
+ else{
+  d.custom.push_back(a);
+  saveCustom(u);
+  sendResponse(client,"200 OK",JSON,stateJson(u,m["date"]));
+ }
+}
+
+============================================================
+5. FRONTEND BUTTON
+============================================================
+
+<button class="custom-link" onclick="openCustom()">
+ ＋ Can’t find your appliance? Add it yourself
+</button>
+
+============================================================
+6. FRONTEND FORM / POPUP
+============================================================
+
+<div class="custom-backdrop" id="customBackdrop">
+ <div class="custom-box">
+  <div class="modal-top">
+   <h3>＋ Add Your Own Appliance</h3>
+   <button class="modal-close" onclick="closeCustom()">×</button>
+  </div>
+  <p class="muted">Enter the details from your appliance label or manual. Your custom appliance will be saved in CSV and remain available after restart.</p>
+  <form id="customForm" onsubmit="saveCustom(event)">
+   <div class="row">
+    <div>
+     <label>Appliance name</label>
+     <input name="name" placeholder="e.g. Hair Straightener" required>
+    </div>
+    <div>
+     <label>Category</label>
+     <select name="category" required>
+      <option>Personal Care</option><option>Kitchen</option>
+      <option>Cooling</option><option>Heating</option><option>Lighting</option>
+      <option>Electronics</option><option>Laundry</option><option>Utility</option><option>Other</option>
+     </select>
+    </div>
+   </div>
+   <div class="row">
+    <div>
+     <label>Rated power (Watts)</label>
+     <input name="watts" type="number" min="1" placeholder="e.g. 1200" required>
+    </div>
+    <div>
+     <label>Standby power (Watts)</label>
+     <input name="standby" type="number" min="0" value="0" required>
+    </div>
+   </div>
+   <div class="row">
+    <div>
+     <label>Efficiency rating</label>
+     <select name="efficiency">
+      <option>A+++</option><option>A++</option><option>A+</option><option>A</option>
+      <option>B</option><option>C</option><option>D</option><option>Not known</option>
+     </select>
+    </div>
+    <div>
+     <label>Priority</label>
+     <select name="priority"><option>Essential</option><option>Normal</option><option>Deferrable</option></select>
+    </div>
+    <div>
+     <label>Status</label>
+     <select name="status"><option>ON</option><option>OFF</option></select>
+    </div>
+   </div>
+   <div class="actions">
+    <button class="primary-btn" type="submit">Save appliance</button>
+    <button class="secondary-btn" type="button" onclick="closeCustom()">Cancel</button>
+    <span class="muted" id="customMsg"></span>
+   </div>
+  </form>
+ </div>
+</div>
+
+============================================================
+7. JAVASCRIPT – OPEN, CLOSE AND SAVE FORM
+============================================================
+
+function openCustom(){
+ $('customBackdrop').classList.add('show');
+ $('customMsg').textContent='';
+}
+function closeCustom(){
+ $('customBackdrop').classList.remove('show');
+}
+async function saveCustom(e){
+ e.preventDefault();
+ let f=new FormData($('customForm'));
+ let data=Object.fromEntries(f.entries());
+ try{
+  await api('/api/custom-appliance',data);
+  $('customMsg').textContent='Saved! Appliance added to your list.';
+  await refresh();
+  setTimeout(()=>{
+   closeCustom();
+   $('customForm').reset();
+  },650);
+ }catch(err){
+  $('customMsg').textContent=err.message;
+ }
+}
+
+============================================================
+FEATURE WORKFLOW
+============================================================
+
+1. User clicks “Can’t find your appliance? Add it yourself”.
+2. A popup form opens.
+3. User enters appliance name, category, rated power, standby power, efficiency, priority and status.
+4. JavaScript sends the form data to /api/custom-appliance.
+5. The C++ backend validates the details and checks for duplicate names.
+6. The appliance is added to that user's custom appliance list.
+7. saveCustom() stores it in that user's custom_appliances.csv file.
+8. The custom appliance is loaded again after restart and added to the appliance catalogue.
+
+NOTE: This file contains the feature's relevant code sections from the supplied project ZIP. It is a reference/extract, not a standalone compilable program. Existing project helper functions such as userDir(), trim(), splitCsv(), parseForm(), cleanField(), lowerText(), api() and refresh() are used by these sections.
