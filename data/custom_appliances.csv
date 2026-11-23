@@ -1,0 +1,21 @@
+name,category,watts,standby_watts,efficiency,priority,status
+AC,Cooling,1600,12,4.2,Essential,ON
+Fan,Cooling,70,2,4.5,Essential,ON
+Refrigerator,Kitchen,180,0,4.3,Essential,ON
+Heater,Heating,2000,10,3.6,Normal,ON
+TV,Entertainment,120,5,4.0,Normal,ON
+Light,Lighting,15,1,4.8,Normal,ON
+Washing Machine,Laundry,550,4,3.8,Deferrable,ON
+Microwave,Kitchen,1100,2,4.0,Normal,ON
+Computer,Computing,280,6,4.2,Deferrable,ON
+Water Pump,Utility,750,8,3.7,Deferrable,ON
+Iron,Laundry,1000,2,3.5,Normal,ON
+Kettle,Kitchen,1600,1,4.1,Normal,ON
+Air Purifier,Air_Quality,55,3,4.2,Deferrable,ON
+Water Heater,Heating,2000,12,3.5,Normal,ON
+Dishwasher,Kitchen,1600,3,3.7,Normal,ON
+Printer,Office,320,5,3.4,Essential,ON
+Vacuum Cleaner,Cleaning,1100,2,3.6,Normal,ON
+Toaster,Kitchen,850,1,3.9,Normal,ON
+Router,Networking,18,0,4.8,Essential,ON
+EV Charger,Vehicle,4500,20,4.0,Essential,ON

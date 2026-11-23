@@ -1,294 +1,136 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home Energy Analytics</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body { background: #0b1220; color: #e2e8f0; }
-    .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
-    .feature-card, .option-card { background: #1e293b; border: 1px solid #334155; transition: all 0.25s; }
-    .option-card:hover { transform: translateY(-4px); border-color: #10b981; }
-    .collapse-header { cursor: pointer; }
-    .collapse-body { display: none; }
-    .collapse-body.open { display: block; }
-    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 50; }
-    .modal.open { display: flex; }
-    .modal-content { background: #1e293b; border-radius: 12px; max-width: 900px; width: 95%; max-height: 85vh; overflow: auto; position: relative; }
-  </style>
-</head>
-<body>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Home Energy Analytics & Budget Advisor</title>
+<style>
+:root{color-scheme:dark;--bg:#080e19;--panel:#1b2a3b;--line:#34495b;--green:#34d399;--muted:#9aafbd;--yellow:#facc15}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 0%,#12332f 0%,#0b1220 38%,#080e19 100%);color:#e2e8f0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.wrap{max-width:1180px;margin:auto;padding:22px 18px 55px}.hero{text-align:center;padding:36px 10px 25px}.eyebrow{color:#6ee7b7;text-transform:uppercase;letter-spacing:.13em;font-size:.72rem;font-weight:800}.hero h1{font-size:clamp(34px,6vw,58px);line-height:1.06;margin:15px 0 12px;color:#fff}.hero h1 span{color:var(--green)}.hero p{color:var(--muted);max-width:690px;margin:auto;line-height:1.65}.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:16px;margin:22px 0}.option-card{background:linear-gradient(145deg,rgba(30,41,59,.96),rgba(17,30,45,.96));border:1px solid #334b59;box-shadow:0 12px 32px rgba(0,0,0,.16);border-radius:17px;padding:21px;text-align:left;color:#e2e8f0;cursor:pointer;min-height:150px;transition:transform .22s,border-color .22s,box-shadow .22s;width:100%}.option-card:hover{transform:translateY(-4px);border-color:#34d399;box-shadow:0 16px 34px rgba(16,185,129,.10)}.option-icon{font-size:29px;margin-bottom:12px}.option-card h3{font-size:17px;margin:0 0 7px}.option-card p{font-size:13px;color:var(--muted);line-height:1.5;margin:0}.panel{background:linear-gradient(145deg,#1b2a3b,#142131);border:1px solid #34495b;border-radius:16px;padding:22px;margin:17px 0;box-shadow:0 12px 30px #0002}.page{display:none}.page.active{display:block}.page-head{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px}.page-head h2{margin:0;font-size:24px}.muted{color:var(--muted);font-size:13px;line-height:1.6}label{display:block;color:#d9e5eb;font-size:14px;margin:12px 0 6px}input,select{background:#0c1725;border:1px solid #405568;border-radius:10px;color:#e2e8f0;padding:11px 12px;width:100%;outline:none;font-size:15px}input:focus,select:focus{border-color:#34d399;box-shadow:0 0 0 3px rgba(52,211,153,.12)}button{border:0;cursor:pointer;font-weight:700}.primary-btn{background:linear-gradient(90deg,#059669,#10b981);color:white;border-radius:10px;padding:11px 17px}.secondary-btn{border:1px solid #496174;background:#172638;color:#dbeafe;border-radius:10px;padding:10px 14px}.danger-btn{border:1px solid #75404a;background:#42232a;color:#ffc4c4;border-radius:10px;padding:10px 14px}.row{display:flex;gap:13px;align-items:end;flex-wrap:wrap}.row>div{flex:1;min-width:155px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;align-items:center}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:13px}.metric{background:rgba(8,18,31,.58);border:1px solid #30485a;border-radius:14px;padding:17px}.metric small{color:var(--muted)}.metric strong{display:block;font-size:25px;margin-top:8px;color:var(--green);overflow-wrap:anywhere}.tap-detail{cursor:pointer;transition:border-color .18s,transform .18s}.tap-detail:active{transform:scale(.99);border-color:var(--green)}.tap-hint{font-size:11px;color:#8fc9b3;margin-top:8px}.modal-backdrop{position:fixed;inset:0;background:rgba(2,8,16,.78);display:none;align-items:center;justify-content:center;padding:18px;z-index:999}.modal-backdrop.show{display:flex}.detail-modal{width:min(620px,100%);max-height:85vh;overflow:auto;background:linear-gradient(145deg,#203247,#101d2b);border:1px solid #527080;border-radius:18px;padding:22px;box-shadow:0 24px 70px #0009}.detail-modal h3{margin:0 42px 12px 0;color:#fff;font-size:20px}.detail-modal p,.detail-modal li{color:#c3d3dc;font-size:14px;line-height:1.65}.detail-modal .formula{background:#0b1724;border:1px solid #355064;border-radius:12px;padding:13px;color:#a7f3d0;font-weight:700;line-height:1.6;margin:12px 0}.modal-top{display:flex;justify-content:space-between;align-items:center}.modal-close{background:#30475a;color:#fff;border-radius:9px;padding:8px 12px;font-size:18px}.notice{border:1px solid #665b2b;background:#2a2818;color:#f6e9a8;padding:13px 15px;border-radius:12px;font-size:13px;line-height:1.55;margin-top:14px}.table-wrap{overflow-x:auto;border:1px solid #34495b;border-radius:14px;margin-top:13px}table{width:100%;border-collapse:collapse;min-width:630px}th,td{text-align:left;padding:12px;border-bottom:1px solid #2b4050;font-size:13px}th{color:#9db5c4;background:#0d1c2a}td{color:#e4edf2}.empty{text-align:center;color:var(--muted);padding:25px}.bar-row{display:grid;grid-template-columns:minmax(95px,150px) 1fr 75px;gap:10px;align-items:center;margin:14px 0;font-size:13px}.bar-track{height:13px;background:#263b4a;border-radius:20px;overflow:hidden}.bar-fill{height:100%;background:linear-gradient(90deg,#10b981,#a3e635);border-radius:20px}.footer{text-align:center;color:#708895;font-size:12px;margin-top:30px}.hidden{display:none!important}.back{display:inline-flex;align-items:center;gap:7px}.hint{font-size:12px;color:#8fa6b5;margin-top:8px}@media(max-width:600px){.wrap{padding:14px 12px 35px}.hero{padding:28px 5px 18px}.panel{padding:17px}.option-card{min-height:130px;padding:17px}.bar-row{grid-template-columns:90px 1fr 65px;gap:7px}}
 
-<section id="landing" class="hero px-6 py-8">
-  <div class="max-w-5xl mx-auto text-center">
-    <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">Home Energy Analytics</h1>
-    <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10">
-      30-day smart electricity management. Track daily usage, weekly patterns, and stay within budget.
-    </p>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 max-w-4xl mx-auto">
-      <div class="feature-card rounded-xl p-4"><div class="text-2xl font-bold text-emerald-400">20</div><div class="text-sm text-slate-400">Appliances</div></div>
-      <div class="feature-card rounded-xl p-4"><div class="text-2xl font-bold text-emerald-400">30</div><div class="text-sm text-slate-400">Days Data</div></div>
-      <div class="feature-card rounded-xl p-4"><div class="text-2xl font-bold text-emerald-400">Weekly</div><div class="text-sm text-slate-400">Insights</div></div>
-      <div class="feature-card rounded-xl p-4"><div class="text-2xl font-bold text-emerald-400">Budget</div><div class="text-sm text-slate-400">Tracking</div></div>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
-      <div onclick="openSection('appliances')" class="option-card rounded-xl p-6 cursor-pointer text-left"><h3 class="font-semibold text-lg">View Appliance Data</h3><p class="text-sm text-slate-400 mt-1">20 appliances · click for 30-day detail</p></div>
-      <div onclick="openSection('energy')" class="option-card rounded-xl p-6 cursor-pointer text-left"><h3 class="font-semibold text-lg">Energy Consumption Analysis</h3><p class="text-sm text-slate-400 mt-1">Best time & peak hour included</p></div>
-      <div onclick="openSection('budget')" class="option-card rounded-xl p-6 cursor-pointer text-left"><h3 class="font-semibold text-lg">Budget Analysis</h3><p class="text-sm text-slate-400 mt-1">Category cost ranking</p></div>
-      <div onclick="openSection('insights')" class="option-card rounded-xl p-6 cursor-pointer text-left"><h3 class="font-semibold text-lg">Smart Insights</h3><p class="text-sm text-slate-400 mt-1">Weekly analysis + overall stats</p></div>
-      <div onclick="openSection('report')" class="option-card rounded-xl p-6 cursor-pointer text-left"><h3 class="font-semibold text-lg">Complete Report</h3><p class="text-sm text-slate-400 mt-1">Bar chart + category analysis</p></div>
-      <div onclick="openSection('comparison')" class="option-card rounded-xl p-6 cursor-pointer text-left"><h3 class="font-semibold text-lg">Budget vs Consumption</h3><p class="text-sm text-slate-400 mt-1">Expected vs actual</p></div>
-    </div>
-  </div>
+.page-flow{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:22px 0 8px;padding:15px;background:rgba(8,18,31,.62);border:1px solid #34495b;border-radius:14px}.page-flow .flow-actions{display:flex;gap:9px;flex-wrap:wrap}.page-flow .flow-label{color:#9aafbd;font-size:13px;line-height:1.5}.page-flow button{border-radius:10px;padding:10px 14px}.flow-report{background:#263b4a;border:1px solid #4d6878;color:#d9fbe9}.flow-next{background:linear-gradient(90deg,#059669,#10b981);color:white}.flow-prev{background:#172638;border:1px solid #496174;color:#dbeafe}
+
+.custom-link{margin-top:12px;color:#a7f3d0;text-decoration:underline;background:none;padding:0;font-size:14px}.custom-backdrop{position:fixed;inset:0;background:#020810d9;display:none;align-items:center;justify-content:center;padding:16px;z-index:1001}.custom-backdrop.show{display:flex}.custom-box{width:min(620px,100%);max-height:90vh;overflow:auto;background:linear-gradient(145deg,#203247,#101d2b);border:1px solid #527080;border-radius:18px;padding:22px}.bot-launch{position:fixed;right:18px;bottom:18px;width:62px;height:62px;border-radius:50%;background:linear-gradient(145deg,#d8b4fe,#a78bfa);color:#31204c;box-shadow:0 8px 28px #0008;border:3px solid #fff3;z-index:1100;font-size:27px;display:flex;align-items:center;justify-content:center}.bot-label{position:fixed;right:90px;bottom:30px;background:#172638;border:1px solid #496174;color:#e9ddff;border-radius:14px;padding:9px 12px;font-size:12px;z-index:1099}.bot-window{position:fixed;right:18px;bottom:92px;width:min(370px,calc(100vw - 28px));height:min(570px,calc(100vh - 125px));display:none;flex-direction:column;background:#142437;border:1px solid #587080;border-radius:20px;box-shadow:0 18px 60px #000b;z-index:1101;overflow:hidden}.bot-window.show{display:flex}.bot-head{padding:14px;background:linear-gradient(100deg,#164e45,#263b59);display:flex;align-items:center;gap:10px}.bot-avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#e9d5ff;color:#54336f;font-size:23px}.bot-head strong{display:block}.bot-head small{color:#b9e8d5}.bot-head button{margin-left:auto;background:#ffffff20;color:white;border-radius:8px;padding:7px 10px}.bot-messages{padding:13px;overflow:auto;flex:1;display:flex;flex-direction:column;gap:10px}.bot-msg{max-width:91%;padding:10px 12px;border-radius:14px;background:#263b50;color:#e5edf5;font-size:13px;line-height:1.55;white-space:pre-wrap}.bot-msg.user{align-self:flex-end;background:#075e4b}.bot-suggestions{display:flex;flex-wrap:wrap;gap:7px;padding:0 12px 10px}.bot-suggestions button{background:#20394a;border:1px solid #4a6876;color:#d9fbe9;border-radius:20px;padding:7px 9px;font-size:11px}.bot-compose{display:flex;gap:7px;padding:10px;border-top:1px solid #34495b}.bot-compose input{flex:1;min-width:0}.bot-compose button{background:#059669;color:white;border-radius:10px;padding:0 14px}.bot-lang{width:auto!important;margin-left:auto;padding:7px!important;font-size:12px!important;background:#102333!important}@media(max-width:480px){.bot-launch{right:13px;bottom:13px;width:56px;height:56px}.bot-label{right:78px;bottom:24px}.bot-window{right:10px;bottom:80px;width:calc(100vw - 20px)}}
+</style></head><body><main class="wrap">
+<header class="hero"><div class="eyebrow">✦ SMART HOME ENERGY PLATFORM</div><h1>Home Energy <span>Analytics</span></h1><p>Track your home's electricity use, understand estimated costs and make smarter energy decisions — without entering technical appliance details.</p></header>
+<section id="homePage">
+<div class="feature-grid">
+<button class="option-card" onclick="openPage('appliancePage')"><div class="option-icon">🔌</div><h3>View Appliance Data</h3><p>Add appliances, set usage timings and view your saved schedule.</p></button>
+<button class="option-card" onclick="openPage('energyPage')"><div class="option-icon">📊</div><h3>Energy Consumption Analysis</h3><p>Explore daily and monthly electricity consumption with a bar graph.</p></button>
+<button class="option-card" onclick="openPage('budgetPage')"><div class="option-icon">💰</div><h3>Budget Analysis</h3><p>Calculate your estimated electricity bill and compare it with your budget.</p></button>
+<button class="option-card" onclick="openPage('insightsPage')"><div class="option-icon">💡</div><h3>Smart Insights</h3><p>Get practical suggestions based on your appliance timings.</p></button>
+<button class="option-card" onclick="openPage('reportPage')"><div class="option-icon">📋</div><h3>Complete Report</h3><p>See a combined summary of appliance usage, units and estimated costs.</p></button>
+<button class="option-card" onclick="openPage('comparePage')"><div class="option-icon">📈</div><h3>Budget vs Consumption</h3><p>Compare your estimated monthly bill with your selected budget.</p></button>
+<button class="option-card" onclick="openPage('solarPage')"><div class="option-icon">☀️</div><h3>Solar Energy Management</h3><p>Set your solar preference and view estimated solar and grid contribution.</p></button>
+</div>
+<div class="panel"><div class="eyebrow">GET STARTED</div><h2 style="margin:8px 0">Your home, your energy dashboard.</h2><p class="muted">Choose any section above. You can visit each section whenever you need it — everything is available from this home screen.</p></div>
 </section>
-
-<div id="content" class="hidden min-h-screen p-6 md:p-10">
-  <button onclick="showLanding()" class="mb-6 text-emerald-400 hover:text-emerald-300">← Back to Home</button>
-  <div id="section-appliances" class="section hidden"></div>
-  <div id="section-energy" class="section hidden"></div>
-  <div id="section-budget" class="section hidden"></div>
-  <div id="section-insights" class="section hidden"></div>
-  <div id="section-report" class="section hidden"></div>
-  <div id="section-comparison" class="section hidden"></div>
-</div>
-
-<!-- Modal for 30-day detail -->
-<div id="modal" class="modal" onclick="if(event.target===this) closeModal()">
-  <div class="modal-content p-6">
-    <button onclick="closeModal()" class="absolute top-3 right-4 text-2xl text-slate-400 hover:text-white">&times;</button>
-    <div id="modal-body"></div>
-  </div>
-</div>
-
+<section id="appliancePage" class="page">
+<div class="page-head"><div><div class="eyebrow">APPLIANCE DATA</div><h2>🔌 View Appliance Data</h2><p class="muted">Add appliance name and timings. Power ratings are selected automatically.</p></div><button class="secondary-btn back" onclick="goHome()">← Home</button></div>
+<div class="panel"><h3>Add Appliance Usage</h3><div class="row"><div><label for="appliance">Appliance</label><select id="appliance"></select></div><div><label for="start">Start time</label><input id="start" type="time" value="09:00"></div><div><label for="end">End time</label><input id="end" type="time" value="10:00"></div></div><div class="actions"><button class="primary-btn" onclick="addUsage()">＋ Add appliance</button><span id="formMsg" class="muted"></span></div><button class="custom-link" onclick="openCustom()">＋ Can’t find your appliance? Add it yourself</button><div class="notice">⏱️ If end time is earlier than start time, it is treated as an overnight schedule. Monthly estimates assume the schedule repeats daily.</div></div>
+<div class="panel"><div class="page-head"><div><h3>📋 Your Appliance Schedule</h3><p class="muted">Saved in the project's CSV data file.</p></div><button class="danger-btn" onclick="clearAll()">Clear all entries</button></div><div id="entries" class="empty">No appliances added yet.</div></div>
+</section>
+<section id="energyPage" class="page"><div class="page-head"><div><div class="eyebrow">ENERGY ANALYSIS</div><h2>📊 Energy Consumption Analysis</h2><p class="muted">Understand how much electricity your scheduled appliances use.</p></div><button class="secondary-btn back" onclick="goHome()">← Home</button></div><div class="grid"><div class="metric"><small>Daily consumption</small><strong id="daily">0.00 kWh</strong></div><div class="metric"><small>Monthly consumption</small><strong id="monthly">0.00 kWh</strong></div><div class="metric"><small>Peak-hour usage / day</small><strong id="peak">0.00 hrs</strong></div></div><div class="panel"><h3>📊 Appliance-wise Daily Consumption</h3><p class="muted">Bar graph based on the appliances and timings you have entered.</p><div id="energyBars" class="empty">Add appliance timings to generate your graph.</div></div></section>
+<section id="budgetPage" class="page"><div class="page-head"><div><div class="eyebrow">BILL CALCULATOR</div><h2>💰 Budget Analysis</h2><p class="muted">Your estimated monthly electricity bill, calculated automatically.</p></div><button class="secondary-btn back" onclick="goHome()">← Home</button></div><div class="grid"><div class="metric"><small>Estimated monthly bill</small><strong id="bill">₹0</strong></div><div class="metric"><small>Monthly grid units</small><strong id="budgetGrid">0.00 kWh</strong></div><div class="metric"><small>Tariff used</small><strong id="tariff">₹8/unit</strong></div></div><div class="panel"><h3>How is the bill calculated?</h3><p class="muted">Estimated grid units × assumed tariff. If solar is enabled, estimated solar contribution is deducted from the grid units. Actual bills may differ due to slab rates, fixed charges, taxes and real meter readings.</p></div></section>
+<section id="insightsPage" class="page"><div class="page-head"><div><div class="eyebrow">SMART RECOMMENDATIONS</div><h2>💡 Smart Insights</h2><p class="muted">Practical suggestions based on your appliance schedule.</p></div><button class="secondary-btn back" onclick="goHome()">← Home</button></div><div class="panel"><h3 class="optimal-title">⚡ Optimal Energy Usage</h3><div class="grid"><div class="metric"><small>Assumed peak window</small><strong>6 PM – 10 PM</strong></div><div class="metric"><small>Suggested usage window</small><strong>10 AM – 4 PM</strong></div></div><div id="insight" class="notice">Add an appliance to see your energy insights.</div><p class="muted" style="margin-top:13px">Where practical, shift deferrable appliances such as washing machines, geysers and EV charging away from peak hours. Peak timing depends on your local electricity tariff.</p></div></section>
+<section id="reportPage" class="page"><div class="page-head"><div><div class="eyebrow">MONTHLY OVERVIEW</div><h2>📋 Complete Report</h2><p class="muted">A combined snapshot of your household's estimated energy use.</p></div><button class="secondary-btn back" onclick="goHome()">← Home</button></div><div class="notice tap-detail" id="reportRuleLine" data-detail="source">Solar status</div><div class="panel"><div class="row"><div><b>Solar setting</b><p class="muted">Turn solar calculations ON or OFF directly from this report. This changes the website estimate only; it does not control physical solar equipment.</p></div><div style="flex:0 0 auto"><button class="primary-btn" id="reportSolarToggle" onclick="toggleSolarFromReport()">Turn Solar ON</button></div></div></div><div class="grid"><div class="metric tap-detail" data-detail="count"><small>Appliance entries</small><strong id="reportCount">0</strong><div class="tap-hint">Tap for details ↗</div></div><div class="metric tap-detail" data-detail="daily"><small>Daily units</small><strong id="reportDaily">0.00 kWh</strong><div class="tap-hint">Tap for calculation ↗</div></div><div class="metric tap-detail" data-detail="monthly"><small>Monthly units</small><strong id="reportMonthly">0.00 kWh</strong><div class="tap-hint">Tap for calculation ↗</div></div><div class="metric tap-detail" data-detail="bill"><small>Estimated monthly bill</small><strong id="reportBill">₹0</strong><div class="tap-hint">Tap to see how this bill was made ↗</div></div><div class="metric tap-detail" data-detail="savings"><small>Estimated solar savings</small><strong id="reportSavings">₹0</strong><div class="tap-hint">Tap for details ↗</div></div></div><div class="notice tap-detail" data-detail="bill">🧾 Bill calculation: Monthly grid units × ₹8 per unit. <b>Tap here to see the complete bill breakdown.</b></div><div class="panel tap-detail" data-detail="source"><h3>☀️⚡ Where your electricity comes from</h3><div class="tap-hint">Tap this section for the solar/grid calculation ↗</div><p class="muted" id="reportExplanation">Solar and grid contribution will be explained here.</p><div id="reportBreakdown"></div><p class="muted" style="margin-top:12px">Assumptions: Daytime is 6 AM–6 PM (60% solar / 40% grid); night-time is 6 PM–6 AM (40% solar / 60% grid). If solar generation is insufficient, the available solar estimate is scaled down. Tariff used: ₹8 per unit. These are estimates, not live meter readings.</p></div><div class="panel tap-detail" data-detail="appliances"><h3>🔌 Appliance details</h3><div class="tap-hint">Tap a row to understand its energy calculation ↗</div><div id="reportTable" class="empty">No appliance data available yet.</div></div></section>
+<section id="comparePage" class="page"><div class="page-head"><div><div class="eyebrow">BUDGET COMPARISON</div><h2>📈 Budget vs Consumption</h2><p class="muted">Compare your estimated bill against your monthly household budget.</p></div><button class="secondary-btn back" onclick="goHome()">← Home</button></div><div class="panel"><div class="row"><div><label for="budgetInput">Monthly budget (₹)</label><input id="budgetInput" type="number" min="0" value="2500" oninput="renderBudgetCompare()"></div></div><div class="grid" style="margin-top:16px"><div class="metric"><small>Your budget</small><strong id="budgetValue">₹2,500</strong></div><div class="metric"><small>Estimated bill</small><strong id="compareBill">₹0</strong></div><div class="metric"><small>Remaining / excess</small><strong id="remaining">₹2,500</strong></div></div><div id="budgetBar" style="margin-top:22px"></div><div id="budgetStatus" class="notice">Add appliance usage to compare your bill with your budget.</div></div></section>
+<section id="solarPage" class="page"><div class="page-head"><div><div class="eyebrow">SOLAR MANAGEMENT</div><h2>☀️ Solar Energy Management</h2><p class="muted">Tell us once whether your home has solar panels.</p></div><button class="secondary-btn back" onclick="goHome()">← Home</button></div><div class="panel"><div class="row"><div><label for="solar">Does your home have solar panels?</label><select id="solar"><option value="no">No — grid electricity only</option><option value="yes">Yes — solar panels installed</option></select></div><div style="flex:0 0 auto"><button class="primary-btn" onclick="saveSetup()">Save setup</button></div></div><div id="setupMsg" class="muted" style="margin-top:10px"></div></div><div class="grid"><div class="metric"><small>Estimated solar generation / month</small><strong id="solarGen">0.00 kWh</strong></div><div class="metric"><small>Estimated solar used</small><strong id="solarUsed">0.00 kWh</strong></div><div class="metric"><small>Estimated grid units</small><strong id="grid">0.00 kWh</strong></div><div class="metric"><small>Estimated savings</small><strong id="solarSavings">₹0</strong></div></div><div class="notice">Solar estimate assumption: 1.5 kW system × 5 equivalent sun-hours/day × 30 days = 225 kWh/month. Daytime usage is estimated as 60% solar / 40% grid; night-time as 40% solar / 60% grid. Actual output depends on system size, weather and shading. This is not a live inverter reading.</div></section>
+<div id="detailModal" class="modal-backdrop" onclick="if(event.target===this)closeDetail()"><div class="detail-modal"><div class="modal-top"><h3 id="detailTitle">Report details</h3><button class="modal-close" onclick="closeDetail()" aria-label="Close">✕</button></div><div id="detailBody"></div></div></div><div class="footer">Home Energy Analytics & Budget Advisor · C++17 backend · Estimates only, not utility-meter readings</div></main>
 <script>
-function showLanding() {
-  document.getElementById("landing").style.display = "flex";
-  document.getElementById("content").classList.add("hidden");
-}
-function openSection(name) {
-  document.getElementById("landing").style.display = "none";
-  document.getElementById("content").classList.remove("hidden");
-  document.querySelectorAll(".section").forEach(s => s.classList.add("hidden"));
-  document.getElementById("section-" + name).classList.remove("hidden");
-  if (name === "appliances") loadAppliances();
-  if (name === "energy") loadEnergy();
-  if (name === "budget") loadBudget();
-  if (name === "insights") loadInsights();
-  if (name === "report") loadReport();
-  if (name === "comparison") loadComparison();
-}
+let state=null;const $=id=>document.getElementById(id);async function api(path,body){let opt={method:body?'POST':'GET'};if(body){opt.headers={'Content-Type':'application/x-www-form-urlencoded'};opt.body=new URLSearchParams(body)}let r=await fetch(path,opt);let d=await r.json();if(!r.ok)throw new Error(d.error||'Something went wrong');return d}
+const flowPages=[{id:'appliancePage',name:'View Appliance Data'},{id:'energyPage',name:'Energy Consumption Analysis'},{id:'budgetPage',name:'Budget Analysis'},{id:'solarPage',name:'Solar Energy Management'},{id:'insightsPage',name:'Smart Insights'},{id:'reportPage',name:'Complete Report'}];
+function addPageFlow(){flowPages.forEach((item,index)=>{const page=$(item.id);if(!page||page.querySelector('.page-flow'))return;const nav=document.createElement('div');nav.className='page-flow';const prev=index>0?flowPages[index-1]:null;const next=index<flowPages.length-1?flowPages[index+1]:null;nav.innerHTML=`<div class="flow-label">${index+1} of ${flowPages.length} · ${next?'Next: '+next.name:'You have reached the final report.'}</div><div class="flow-actions">${prev?`<button class="flow-prev" onclick="openPage('${prev.id}')">← Previous</button>`:''}<button class="flow-report" onclick="openPage('reportPage')">📋 Complete Report</button>${next?`<button class="flow-next" onclick="openPage('${next.id}')">Next: ${next.name} →</button>`:`<button class="flow-next" onclick="goHome()">Back to Home</button>`}</div>`;page.appendChild(nav);});}
+function openPage(id){$('homePage').classList.add('hidden');document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$(id).classList.add('active');window.scrollTo(0,0)}function goHome(){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$('homePage').classList.remove('hidden');window.scrollTo(0,0)}function money(v){return '₹'+Number(v||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
+function closeDetail(){$('detailModal').classList.remove('show')}
+function showDetail(key,entry){if(!state)return;let s=state.summary,tariff=state.tariff||8,title='Report details',body='';let fmt=n=>Number(n||0).toFixed(2);
+if(key==='count'){title='Appliance entries';body=`<p>This report currently contains <b>${state.entries.length}</b> saved appliance schedule(s). Each entry represents one appliance and its daily start/end timing.</p><div class="formula">Total entries = ${state.entries.length} saved schedule(s)</div>`}
+else if(key==='daily'){title='Daily consumption calculation';body=`<p>Daily units are calculated from each appliance's default power rating and the duration you entered.</p><div class="formula">Units per appliance = (Power in watts × Hours) ÷ 1000<br>Daily total = ${fmt(s.daily)} kWh</div><p>The system adds the daily kWh values of all appliance entries. Overnight timings are counted across midnight.</p>`}
+else if(key==='monthly'){title='Monthly consumption calculation';body=`<p>The project assumes the same appliance schedule repeats every day for 30 days.</p><div class="formula">Monthly units = Daily units × 30<br>${fmt(s.daily)} × 30 = ${fmt(s.monthly)} kWh</div><p>This is an estimate based on the saved schedule, not a meter reading.</p>`}
+else if(key==='bill'){title='How your electricity bill is calculated';body=`<p>Your estimated bill is based on the electricity drawn from the grid, not the total appliance consumption when solar contributes.</p><div class="formula">Day grid units: ${fmt(s.gridDay)} kWh<br>Night grid units: ${fmt(s.gridNight)} kWh<br>Total grid units: ${fmt(s.grid)} kWh<br>Tariff: ${money(tariff)} per unit<br><br>Bill = Grid units × Tariff<br>${fmt(s.grid)} × ${money(tariff)} = ${money(s.bill)}</div><p>Actual utility bills can also include fixed charges, slab rates, taxes and other adjustments, so the displayed value is an estimate.</p>`}
+else if(key==='savings'){title='How solar savings are calculated';body=`<p>Solar savings are the estimated grid charges avoided by the solar contribution.</p><div class="formula">Solar units used: ${fmt(s.solarUsed)} kWh<br>Savings = Solar units × Tariff<br>${fmt(s.solarUsed)} × ${money(tariff)} = ${money(s.savings)}</div><p>Solar contribution is estimated from the project's assumed daytime/night-time split and generation limit. It is not a live inverter reading.</p>`}
+else if(key==='source'){title='Solar and grid contribution';body=`<p>${state.solar?'Solar is enabled. The model estimates 60% solar / 40% grid for daytime use (6 AM–6 PM), and 40% solar / 60% grid for night-time use (6 PM–6 AM), subject to the demo generation limit.':'Solar is disabled, so all estimated consumption is supplied by the electricity grid.'}</p><div class="formula">Day use: ${fmt(s.dayUnits)} kWh<br>Day solar: ${fmt(s.solarDay)} kWh · Day grid: ${fmt(s.gridDay)} kWh<br><br>Night use: ${fmt(s.nightUnits)} kWh<br>Night solar: ${fmt(s.solarNight)} kWh · Night grid: ${fmt(s.gridNight)} kWh<br><br>Total solar: ${fmt(s.solarUsed)} kWh<br>Total grid: ${fmt(s.grid)} kWh</div><p>These percentages are assumptions for demonstration. Real solar/grid allocation requires inverter or smart-meter data.</p>`}
+else if(key==='appliances'){title='Appliance-wise energy details';body=state.entries.length?`<p>Each appliance uses its catalogue default wattage. Select an individual row in the report for its own calculation.</p><div class="formula">Daily energy = (Default watts × Usage hours) ÷ 1000</div>`:'<p>No appliance entries have been added yet.</p>'}
+else if(key==='entry'&&entry){title=entry.name+' — energy calculation';body=`<p>Timing: ${entry.start} to ${entry.end}<br>Duration: ${fmt(entry.hours)} hours/day<br>Catalogue power: ${entry.watts} W</p><div class="formula">Daily units = (${entry.watts} W × ${fmt(entry.hours)} hours) ÷ 1000<br>= ${fmt(entry.daily)} kWh/day<br><br>Monthly estimate = ${fmt(entry.daily)} × 30<br>= ${fmt(entry.daily*30)} kWh/month</div><p>Power is a typical catalogue value and may differ from the actual appliance rating.</p>`}
+$('detailTitle').textContent=title;$('detailBody').innerHTML=body;$('detailModal').classList.add('show')}
+document.addEventListener('click',e=>{let row=e.target.closest('[data-entry]');if(row){let n=Number(row.getAttribute('data-entry'));showDetail('entry',state.entries[n]);return}let card=e.target.closest('#reportPage [data-detail]');if(card)showDetail(card.getAttribute('data-detail'))});
+async function refresh(){state=await api('/api/state');if($('solar'))$('solar').value=state.solar?'yes':'no';$('appliance').innerHTML=state.catalogue.map(a=>`<option value="${a.name}">${a.name} · ${a.category} · ${a.watts} W</option>`).join('');let s=state.summary;$('daily').textContent=s.daily.toFixed(2)+' kWh';$('monthly').textContent=s.monthly.toFixed(2)+' kWh';$('peak').textContent=s.peakHours.toFixed(2)+' hrs';$('bill').textContent=money(s.bill);$('budgetGrid').textContent=s.grid.toFixed(2)+' kWh';$('tariff').textContent=money(state.tariff)+'/unit';$('solarGen').textContent=s.solarGeneration.toFixed(2)+' kWh';$('solarUsed').textContent=s.solarUsed.toFixed(2)+' kWh';$('grid').textContent=s.grid.toFixed(2)+' kWh';$('solarSavings').textContent=money(s.savings);$('insight').innerHTML=state.entries.length?`Your schedule contains <b>${state.entries.length}</b> appliance entries. Estimated monthly consumption is <b>${s.monthly.toFixed(2)} kWh</b>. ${s.peakHours>0?`About <b>${s.peakHours.toFixed(2)} hours/day</b> overlap with the assumed peak window (6 PM–10 PM).`:'No scheduled usage currently overlaps the assumed peak window.'} ${state.solar?'Solar contribution is estimated using the demo assumption.':'Your estimated units are supplied by the electricity grid.'}`:'Add an appliance to see your energy insights.';$('reportCount').textContent=state.entries.length;$('reportDaily').textContent=s.daily.toFixed(2)+' kWh';$('reportMonthly').textContent=s.monthly.toFixed(2)+' kWh';$('reportBill').textContent=money(s.bill);$('reportSavings').textContent=money(s.savings);$('reportRuleLine').textContent=state.solar?'Solar ON: Daytime (6 AM–6 PM) = 60% Solar + 40% Grid; Night-time (6 PM–6 AM) = 40% Solar + 60% Grid.':'Solar OFF: 0% Solar + 100% Grid for all usage.';$('reportSolarToggle').textContent=state.solar?'Turn Solar OFF':'Turn Solar ON';$('reportExplanation').innerHTML=state.solar?`Daytime appliances (6 AM–6 PM): <b>${s.dayUnits.toFixed(2)} kWh</b> used; <b>${s.solarDay.toFixed(2)} kWh</b> estimated from solar (60%) and <b>${s.gridDay.toFixed(2)} kWh</b> from grid (40%). Night-time appliances (6 PM–6 AM): <b>${s.nightUnits.toFixed(2)} kWh</b> used; <b>${s.solarNight.toFixed(2)} kWh</b> estimated from solar (40%) and <b>${s.gridNight.toFixed(2)} kWh</b> from grid (60%).`:`Solar is OFF. All <b>${s.monthly.toFixed(2)} kWh</b> are estimated from the grid; solar contribution and savings are ₹0.`;$('reportBreakdown').innerHTML=`<table><thead><tr><th>Period</th><th>Total use</th><th>Solar</th><th>Grid</th><th>Grid cost</th></tr></thead><tbody><tr><td>Day (6 AM–6 PM)</td><td>${s.dayUnits.toFixed(2)} kWh</td><td>${s.solarDay.toFixed(2)} kWh</td><td>${s.gridDay.toFixed(2)} kWh</td><td>${money(s.gridDay*state.tariff)}</td></tr><tr><td>Night (6 PM–6 AM)</td><td>${s.nightUnits.toFixed(2)} kWh</td><td>${s.solarNight.toFixed(2)} kWh</td><td>${s.gridNight.toFixed(2)} kWh</td><td>${money(s.gridNight*state.tariff)}</td></tr><tr><th>Total</th><th>${s.monthly.toFixed(2)} kWh</th><th>${s.solarUsed.toFixed(2)} kWh</th><th>${s.grid.toFixed(2)} kWh</th><th>${money(s.bill)}</th></tr></tbody></table>`;renderEntries();renderBars();renderReport();renderBudgetCompare()}
+function renderEntries(){let el=$('entries');if(!state.entries.length){el.className='empty';el.textContent='No appliances added yet. Start by adding one above.';return}el.className='table-wrap';el.innerHTML=`<table><thead><tr><th>Appliance</th><th>Timing</th><th>Duration</th><th>Power</th><th>Daily energy</th><th>Daily cost</th><th>Monthly cost</th><th></th></tr></thead><tbody>${state.entries.map(e=>{let dailyCost=e.daily*(state.tariff||8);return `<tr><td><b>${e.name}</b></td><td>${e.start} – ${e.end}</td><td>${e.hours.toFixed(2)} h</td><td>${e.watts} W</td><td>${e.daily.toFixed(3)} kWh</td><td>${money(dailyCost)}</td><td>${money(dailyCost*30)}</td><td><button class=\"secondary-btn\" onclick=\"removeEntry(${e.id})\">Remove</button></td></tr>`}).join('')}</tbody></table><p class=\"hint\">Cost estimate = appliance units × ₹${state.tariff||8}/unit. Actual bill may differ; this simple appliance estimate does not allocate solar savings per individual appliance.</p>`}
+function renderBars(){let el=$('energyBars');if(!state.entries.length){el.className='empty';el.textContent='Add appliance timings to generate your graph.';return}el.className='';let totals={};state.entries.forEach(e=>totals[e.name]=(totals[e.name]||0)+e.daily);let max=Math.max(...Object.values(totals),0.01);el.innerHTML=Object.entries(totals).map(([name,v])=>`<div class="bar-row"><span>${name}</span><div class="bar-track"><div class="bar-fill" style="width:${v/max*100}%"></div></div><b>${v.toFixed(2)} kWh</b></div>`).join('')}
+function renderReport(){let el=$('reportTable');if(!state.entries.length){el.className='empty';el.textContent='No appliance data available yet.';return}el.className='table-wrap';el.innerHTML=`<table><thead><tr><th>Appliance</th><th>Timing</th><th>Hours/day</th><th>Power</th><th>Daily units</th></tr></thead><tbody>${state.entries.map((e,i)=>`<tr data-entry="${i}" style="cursor:pointer"><td>${e.name}</td><td>${e.start} – ${e.end}</td><td>${e.hours.toFixed(2)}</td><td>${e.watts} W</td><td>${e.daily.toFixed(3)} kWh</td></tr>`).join('')}</tbody></table>`}
+function renderBudgetCompare(){if(!state)return;let b=Math.max(0,Number($('budgetInput').value)||0),bill=state.summary.bill,diff=b-bill;$('budgetValue').textContent=money(b);$('compareBill').textContent=money(bill);$('remaining').textContent=(diff>=0?money(diff)+' left':money(-diff)+' over');$('remaining').style.color=diff>=0?'#34d399':'#fca5a5';$('budgetBar').innerHTML=`<div class="muted">Estimated bill vs monthly budget</div><div class="bar-track" style="height:18px;margin-top:9px"><div class="bar-fill" style="width:${b?Math.min(100,bill/b*100):bill?100:0}%"></div></div>`;$('budgetStatus').textContent=state.entries.length?(diff>=0?'Your estimated bill is within the selected budget.':'Your estimated bill is above the selected budget.'):'Add appliance usage to compare your bill with your budget.'}
+async function saveSetup(){try{state=await api('/api/setup',{solar:$('solar').value});$('setupMsg').textContent='Household setup saved.';await refresh()}catch(e){$('setupMsg').textContent=e.message}}
+async function addUsage(){try{state=await api('/api/add',{name:$('appliance').value,start:$('start').value,end:$('end').value});$('formMsg').textContent='Appliance added and saved.';await refresh()}catch(e){$('formMsg').textContent=e.message}}
+async function removeEntry(id){try{state=await api('/api/delete',{id});await refresh()}catch(e){alert(e.message)}}async function clearAll(){if(!confirm('Delete all saved appliance entries?'))return;state=await api('/api/clear',{});await refresh()}addPageFlow();refresh().catch(e=>{$('formMsg').textContent='Could not connect to C++ server. Start the server and reload this page.'});
 
-function closeModal() {
-  document.getElementById("modal").classList.remove("open");
-}
-
-async function loadAppliances() {
-  const res = await fetch("/api/appliances");
-  const data = await res.json();
-  let html = `<h2 class="text-3xl font-bold mb-6">Appliance Data <span class="text-slate-400 text-xl">(20 appliances)</span></h2>
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">`;
-  data.forEach(a => {
-    html += `<div onclick="loadApplianceDetail(${a.id})" class="bg-slate-800 rounded-xl p-5 cursor-pointer hover:bg-slate-700 border border-slate-700">
-      <div class="font-semibold text-lg">${a.name}</div>
-      <div class="text-sm text-slate-400">${a.category}</div>
-      <div class="mt-3 text-sm">Avg Hours: <strong>${a.avg_hours}</strong> / day</div>
-      <div class="text-sm">Total Energy: <strong>${a.total_energy} kWh</strong></div>
-      <div class="text-sm">Cost: <strong>₹${a.total_cost}</strong></div>
-      <div class="text-xs text-emerald-400 mt-2">Click for 30-day detail →</div>
-    </div>`;
-  });
-  html += `</div>`;
-  document.getElementById("section-appliances").innerHTML = html;
-}
-
-async function loadApplianceDetail(id) {
-  const res = await fetch("/api/appliance/" + id);
-  const d = await res.json();
-  let html = `<h3 class="text-2xl font-bold mb-2">${d.name} — 30 Day Detail</h3>
-    <p class="mb-4 text-slate-400">Category: ${d.category} · Total: ${d.total_energy} kWh · ₹${d.total_cost}</p>
-    <div class="overflow-x-auto rounded-xl border border-slate-700 max-h-[60vh]">
-      <table class="w-full text-sm">
-        <thead class="bg-slate-800 sticky top-0"><tr>
-          <th class="p-2 text-left">Date</th><th class="p-2 text-right">Hours</th><th class="p-2 text-right">Energy (kWh)</th>
-          <th class="p-2">Start</th><th class="p-2">End</th><th class="p-2">Peak</th>
-        </tr></thead><tbody>`;
-  d.daily.forEach(day => {
-    html += `<tr class="border-b border-slate-800"><td class="p-2">${day.date}</td><td class="p-2 text-right">${day.hours}</td><td class="p-2 text-right">${day.energy}</td><td class="p-2">${day.start_time}</td><td class="p-2">${day.end_time}</td><td class="p-2">${day.peak_time}</td></tr>`;
-  });
-  html += `</tbody></table></div>`;
-  document.getElementById("modal-body").innerHTML = html;
-  document.getElementById("modal").classList.add("open");
-}
-
-async function loadEnergy() {
-  const res = await fetch("/api/energy");
-  const data = await res.json();
-  let html = `<h2 class="text-3xl font-bold mb-6">Energy Consumption Analysis</h2>
-    <div class="overflow-x-auto rounded-xl border border-slate-700">
-      <table class="w-full text-sm">
-        <thead class="bg-slate-800"><tr>
-          <th class="p-3 text-left">Appliance</th><th class="p-3 text-right">Power</th><th class="p-3 text-right">Avg Hours</th>
-          <th class="p-3 text-right">Total kWh</th><th class="p-3 text-right">Cost</th>
-          <th class="p-3">Best Time</th><th class="p-3">Peak Hour</th><th class="p-3 text-center">Eff.</th>
-        </tr></thead><tbody>`;
-  data.forEach(a => {
-    html += `<tr class="border-b border-slate-800"><td class="p-3">${a.name}</td><td class="p-3 text-right">${a.power} W</td><td class="p-3 text-right">${a.avg_hours}</td><td class="p-3 text-right">${a.total_energy}</td><td class="p-3 text-right">₹${a.total_cost}</td><td class="p-3">${a.best_time}</td><td class="p-3">${a.peak_hour}</td><td class="p-3 text-center">${a.efficiency}</td></tr>`;
-  });
-  html += `</tbody></table></div>`;
-  document.getElementById("section-energy").innerHTML = html;
-}
-
-async function loadBudget() {
-  const [sumRes, catRes] = await Promise.all([fetch("/api/summary"), fetch("/api/category")]);
-  const s = await sumRes.json();
-  const cats = await catRes.json();
-  const color = s.remaining >= 0 ? "text-green-400" : "text-red-400";
-  let html = `<h2 class="text-3xl font-bold mb-6">Budget Analysis</h2>
-    <div class="grid md:grid-cols-3 gap-4 mb-8 max-w-3xl">
-      <div class="bg-slate-800 rounded-xl p-6"><div class="text-slate-400">Monthly Budget</div><div class="text-3xl font-bold">₹${s.budget}</div></div>
-      <div class="bg-slate-800 rounded-xl p-6"><div class="text-slate-400">Estimated Cost</div><div class="text-3xl font-bold text-yellow-400">₹${s.totalCost}</div></div>
-      <div class="bg-slate-800 rounded-xl p-6"><div class="text-slate-400">Status</div><div class="text-2xl font-bold ${color}">${s.status}</div></div>
-    </div>
-    <h3 class="text-xl font-semibold mb-3">Category Cost (High → Low)</h3>
-    <div class="space-y-2 max-w-md">`;
-  cats.forEach(c => {
-    html += `<div class="flex justify-between bg-slate-800 rounded-lg px-4 py-2"><span>${c.category}</span><span class="font-semibold">₹${c.cost}</span></div>`;
-  });
-  html += `</div>`;
-  document.getElementById("section-budget").innerHTML = html;
-}
-
-async function loadInsights() {
-  const [insRes, weekRes, sumRes] = await Promise.all([fetch("/api/insights"), fetch("/api/weekly"), fetch("/api/summary")]);
-  const ins = await insRes.json();
-  const weeks = await weekRes.json();
-  const sum = await sumRes.json();
-
-  let html = `<h2 class="text-3xl font-bold mb-6">Smart Energy Insights</h2>
-    <div class="grid md:grid-cols-2 gap-6 mb-8">
-      <div class="bg-slate-800 rounded-xl p-6">
-        <div class="text-slate-400 text-sm">Total Energy</div>
-        <div class="text-2xl font-bold text-emerald-400">${sum.totalEnergy} kWh</div>
-        <div class="mt-4 text-slate-400 text-sm">Total Cost</div>
-        <div class="text-2xl font-bold text-yellow-400">₹${ins.total_cost}</div>
-        <div class="mt-4 text-slate-400 text-sm">Highest Consumer</div>
-        <div class="text-xl font-bold text-orange-400">${ins.highestConsumer}</div>
-        <div class="text-sm">${ins.highestEnergy} kWh</div>
-      </div>
-      <div class="bg-slate-800 rounded-xl p-6">
-        <div class="font-semibold mb-3">High Power (≥1000W)</div>
-        <ul class="list-disc list-inside text-sm space-y-1 max-h-48 overflow-y-auto">
-          ${ins.highPower.map(n => `<li>${n}</li>`).join("") || "<li>None</li>"}
-        </ul>
-      </div>
-    </div>
-    <h3 class="text-2xl font-semibold mb-4">Weekly Analysis</h3>`;
-
-  for (let w = 1; w <= 4; w++) {
-    const data = weeks[w];
-    html += `<div class="mb-4 border border-slate-700 rounded-xl overflow-hidden">
-      <div class="collapse-header bg-slate-800 px-5 py-4 flex justify-between items-center" onclick="this.nextElementSibling.classList.toggle('open')">
-        <span class="font-semibold">Week ${w}</span>
-        <span class="text-sm text-slate-400">${data.total_energy} kWh · ₹${data.total_cost}</span>
-      </div>
-      <div class="collapse-body bg-slate-900 px-5 py-4">
-        <p class="text-sm text-slate-400 mb-3">Top 5 by energy this week:</p>
-        <ol class="list-decimal list-inside space-y-1 mb-4">
-          ${data.top5.map(t => `<li>${t.name} — ${t.energy} kWh</li>`).join("")}
-        </ol>
-        <p class="text-sm text-emerald-400">Recommendation: ${data.recommendation}</p>
-      </div>
-    </div>`;
-  }
-
-  html += `<div class="mt-6 bg-slate-800 rounded-xl p-5">
-    <h4 class="font-semibold mb-2">General Recommendations</h4>
-    <ul class="list-disc list-inside text-sm space-y-1">
-      ${ins.recommendations.map(r => `<li>${r}</li>`).join("")}
-    </ul>
-  </div>`;
-
-  document.getElementById("section-insights").innerHTML = html;
-}
-
-async function loadReport() {
-  try {
-    const [repRes, catRes, energyRes] = await Promise.all([
-      fetch("/api/report"),
-      fetch("/api/category"),
-      fetch("/api/category-energy")
-    ]);
-    const d = await repRes.json();
-    const cats = await catRes.json();
-    const energyCats = await energyRes.json();
-
-    let catHtml = `<div class="grid md:grid-cols-2 gap-8 mt-8">
-      <div>
-        <h3 class="text-xl font-semibold mb-3">Category Analysis (by Cost)</h3>
-        <div class="space-y-2">`;
-    cats.forEach(c => {
-      catHtml += `<div class="flex justify-between bg-slate-800 rounded-lg px-4 py-2"><span>${c.category}</span><span class="font-semibold">₹${c.cost}</span></div>`;
-    });
-    catHtml += `</div></div>
-      <div>
-        <h3 class="text-xl font-semibold mb-3">Category Analysis (by Power Consumption)</h3>
-        <div class="space-y-2">`;
-    energyCats.forEach(c => {
-      catHtml += `<div class="flex justify-between bg-slate-800 rounded-lg px-4 py-2"><span>${c.category}</span><span class="font-semibold">${c.energy} kWh</span></div>`;
-    });
-    catHtml += `</div></div></div>`;
-
-    document.getElementById("section-report").innerHTML = `
-      <h2 class="text-3xl font-bold mb-6">Complete Report</h2>
-      <div class="bg-slate-800 rounded-xl p-6 mb-6 max-w-3xl">
-        <canvas id="reportChart" height="120"></canvas>
-      </div>
-      <p class="text-slate-300 max-w-3xl leading-relaxed mb-6">${d.paragraph || ""}</p>
-      <div class="text-sm text-slate-400 mb-4">Hover over bars to see max day & average details.</div>
-      <div id="hover-info" class="mt-2 text-sm text-emerald-300 mb-6"></div>
-      ${catHtml}`;
-
-    const ctx = document.getElementById("reportChart").getContext("2d");
-    new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: d.chart_data.map(x => x.name),
-        datasets: [{ label: "Total Energy (kWh)", data: d.chart_data.map(x => x.energy), backgroundColor: "#10b981" }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, ticks: { color: "#94a3b8" } }, x: { ticks: { color: "#94a3b8", maxRotation: 45 } } },
-        onHover: (e, elements) => {
-          const info = document.getElementById("hover-info");
-          if (elements.length && info) {
-            const idx = elements[0].index;
-            const name = d.chart_data[idx].name;
-            info.innerHTML = `<strong>${name}</strong> — Max day: ${d.max_day.date} (${d.max_day.energy} kWh by ${d.max_day.appliance}) · Average daily: ${d.avg_daily} kWh`;
-          } else if (info) info.innerHTML = "";
-        }
-      }
-    });
-  } catch (err) {
-    document.getElementById("section-report").innerHTML = `<div class="text-red-400">Error loading report: ${err.message}</div>`;
-    console.error(err);
-  }
-}
-
-async function loadComparison() {
-  const res = await fetch("/api/budget-comparison");
-  const d = await res.json();
-  const color = d.difference >= 0 ? "text-green-400" : "text-red-400";
-  document.getElementById("section-comparison").innerHTML = `
-    <h2 class="text-3xl font-bold mb-6">Expected Budget vs Real Consumption</h2>
-    <div class="grid md:grid-cols-3 gap-4 max-w-3xl">
-      <div class="bg-slate-800 rounded-xl p-6 text-center"><div class="text-slate-400 text-sm">Expected Budget</div><div class="text-3xl font-bold mt-2">₹${d.expectedBudget}</div></div>
-      <div class="bg-slate-800 rounded-xl p-6 text-center"><div class="text-slate-400 text-sm">Actual Cost</div><div class="text-3xl font-bold mt-2 text-yellow-400">₹${d.realConsumptionCost}</div></div>
-      <div class="bg-slate-800 rounded-xl p-6 text-center"><div class="text-slate-400 text-sm">Difference</div><div class="text-3xl font-bold mt-2 ${color}">₹${Math.abs(d.difference)}</div><div class="text-sm">${d.status}</div></div>
-    </div>`;
-}
 </script>
-</body>
-</html>
+<div class="custom-backdrop" id="customBackdrop"><div class="custom-box"><div class="modal-top"><h3>＋ Add Your Own Appliance</h3><button class="modal-close" onclick="closeCustom()">×</button></div><p class="muted">Enter the details from your appliance label or manual. Your custom appliance will be saved in CSV and remain available after restart.</p><form id="customForm" onsubmit="saveCustom(event)"><div class="row"><div><label>Appliance name</label><input name="name" placeholder="e.g. Hair Straightener" required></div><div><label>Category</label><select name="category" required><option>Personal Care</option><option>Kitchen</option><option>Cooling</option><option>Heating</option><option>Lighting</option><option>Electronics</option><option>Laundry</option><option>Utility</option><option>Other</option></select></div></div><div class="row"><div><label>Rated power (Watts)</label><input name="watts" type="number" min="1" placeholder="e.g. 1200" required></div><div><label>Standby power (Watts)</label><input name="standby" type="number" min="0" value="0" required></div></div><div class="row"><div><label>Efficiency rating</label><select name="efficiency"><option>A+++</option><option>A++</option><option>A+</option><option>A</option><option>B</option><option>C</option><option>D</option><option>Not known</option></select></div><div><label>Priority</label><select name="priority"><option>Essential</option><option>Normal</option><option>Deferrable</option></select></div><div><label>Status</label><select name="status"><option>ON</option><option>OFF</option></select></div></div><div class="actions"><button class="primary-btn" type="submit">Save appliance</button><button class="secondary-btn" type="button" onclick="closeCustom()">Cancel</button><span class="muted" id="customMsg"></span></div></form></div></div>
+
+<div class="modal-backdrop" id="glossaryModal" onclick="if(event.target===this)closeGlossary()"><div class="detail-modal"><div class="modal-top"><h3 id="glossaryTitle">Term meaning</h3><button class="modal-close" onclick="closeGlossary()">×</button></div><div id="glossaryBody"></div></div></div>
+<button class="bot-launch" id="botLaunch" onclick="toggleBot()" aria-label="Open WattBot">🤖</button><div class="bot-label" id="botLabel">Need help? Tap me!</div>
+<div class="bot-window" id="botWindow"><div class="bot-head"><div class="bot-avatar">⚡</div><div><strong>WattBot</strong><small>● Your Energy Assistant</small></div><select id="botLang" class="bot-lang" onchange="setBotLanguage()"><option>Hinglish</option><option>English</option><option>Hindi</option></select><button onclick="toggleBot()">×</button></div><div class="bot-messages" id="botMessages"><div class="bot-msg" id="botWelcome">Heyyy! 👋 Main WattBot hoon. Website use karne mein help chahiye? Neeche suggested questions try karo ya apna question type karo.</div></div><div class="bot-suggestions" id="botSuggestions"><button onclick="askSuggested('How do I add an appliance?')">Add appliance</button><button onclick="askSuggested('How is my electricity bill calculated?')">Bill calculation</button><button onclick="askSuggested('How does solar management work?')">Solar help</button><button onclick="askSuggested('How can I save energy during a power cut?')">Power cut help</button><button onclick="askSuggested('How do I view my complete report?')">Complete report</button></div><div class="bot-compose"><input id="botInput" placeholder="Ask WattBot anything..." onkeydown="if(event.key==='Enter')sendBot()"><button onclick="sendBot()">Send</button></div></div>
+<script>
+function openCustom(){$('customBackdrop').classList.add('show');$('customMsg').textContent=''}function closeCustom(){$('customBackdrop').classList.remove('show')}
+async function saveCustom(e){e.preventDefault();let f=new FormData($('customForm'));let data=Object.fromEntries(f.entries());try{await api('/api/custom-appliance',data);$('customMsg').textContent='Saved! Appliance added to your list.';await refresh();setTimeout(()=>{closeCustom();$('customForm').reset()},650)}catch(err){$('customMsg').textContent=err.message}}
+function toggleBot(){let w=$('botWindow');w.classList.toggle('show');$('botLabel').style.display=w.classList.contains('show')?'none':'block';if(w.classList.contains('show'))$('botInput').focus()}
+function setBotLanguage(){let lang=$('botLang').value;let msg=lang==='English'?'Hello! 👋 I’m WattBot. Need help using the website? Choose a suggested question or type your own.':lang==='Hindi'?'नमस्ते! 👋 मैं WattBot हूँ। वेबसाइट इस्तेमाल करने में मदद चाहिए? नीचे सवाल चुनें या अपना सवाल लिखें।':'Heyyy! 👋 Main WattBot hoon. Website use karne mein help chahiye? Suggested questions try karo ya apna question type karo.';$('botWelcome').textContent=msg}
+function addBotMessage(txt,who){let d=document.createElement('div');d.className='bot-msg'+(who==='user'?' user':'');d.textContent=txt;$('botMessages').appendChild(d);$('botMessages').scrollTop=$('botMessages').scrollHeight}
+async function askSuggested(q){$('botInput').value=q;await sendBot()}
+async function sendBot(){let q=$('botInput').value.trim();if(!q)return;addBotMessage(q,'user');$('botInput').value='';try{let d=await api('/api/bot',{question:q,lang:$('botLang').value});addBotMessage(d.reply,'bot')}catch(e){addBotMessage('Sorry, abhi response nahi aa paaya. Please try again.','bot')}}
+
+async function toggleSolarFromReport(){try{await api('/api/setup',{solar:state.solar?'no':'yes'});await refresh()}catch(e){alert(e.message)}}
+const glossaryRules=[
+ [/\bkwh\b|daily units|monthly units|consumption|energy use|energy used|units per day|units per month/i,['Electricity units','This tells you how much electricity your appliances use. 1 kWh is equal to 1 electricity unit.']],
+ [/standby/i,['Standby power','Some appliances use a small amount of electricity even when they look switched off but remain plugged in.']],
+ [/\bwatts?\b|\bpower\b/i,['Appliance power','This tells you how much electricity an appliance needs while it is running. A higher watt number usually means it uses electricity faster.']],
+ [/tariff|electricity rate|rate used/i,['Electricity rate','This is the price charged for each electricity unit. This project uses an example rate of ₹8 per unit.']],
+ [/\bgrid\b|provider|electricity supply/i,['Grid electricity','This is electricity supplied to your home by your electricity company through power lines.']],
+ [/solar setting|solar status/i,['Solar setting','This switch changes the website calculation between grid-only use and the estimated solar/grid split. It does not switch real solar equipment on or off.']],
+ [/\bsolar\b|solar contribution|solar share|solar generation|solar savings/i,['Solar electricity','This is electricity produced by solar panels. The website estimates this amount; it is not reading a live solar meter.']],
+ [/peak|high.rate hours/i,['Peak hours','These are hours when electricity may cost more. The 6 PM–10 PM timing in this project is only an example and may differ from your provider.']],
+ [/off.peak|suggested usage window/i,['Lower-rate hours','These are hours when electricity may cost less, if your electricity provider offers a lower rate at that time.']],
+ [/efficien|rating/i,['Efficiency rating','This rating helps compare how effectively an appliance uses electricity to do its job.']],
+ [/monthly bill|estimated bill|bill|cost|budget|₹|rupee/i,['Estimated electricity cost','This is an approximate cost based on estimated electricity units and the example rate. Your actual bill may include other charges.']],
+ [/appliance|device|schedule|entry|entries/i,['Appliance details','An appliance is an electrical item used at home. Its schedule shows when it starts, when it stops and how long it runs.']],
+ [/duration|hours|timing|start time|end time/i,['Usage time','This is how long an appliance is scheduled to run. If the end time is earlier than the start time, the project treats it as running past midnight.']],
+ [/daytime|day \(|day use/i,['Daytime usage','For this project, daytime means 6 AM to 6 PM. When solar is ON, the estimate uses 60% solar and 40% grid for this period.']],
+ [/night.time|night \(|night use/i,['Night-time usage','For this project, night-time means 6 PM to 6 AM. When solar is ON, the estimate uses 40% solar and 60% grid for this period.']],
+ [/saving|remaining|excess|comparison/i,['Estimated savings or balance','This is an estimate showing how much money may be saved or how much of your budget remains. It is based on the project assumptions.']],
+ [/optimal energy usage/i,['Optimal energy usage','This section suggests when to use appliances so you can avoid the example peak-price hours where practical.']],
+ [/report|overview|analysis|insight|recommendation/i,['What this section shows','This section summarizes your appliance timings, estimated electricity use or cost to help you understand your household energy use.']],
+ [/category|priority|status/i,['Appliance information','These details help organize your appliance list. Priority describes how important it is to keep an appliance running; status shows whether it is marked ON or OFF.']],
+ [/^wattbot$|assistant|help/i,['Energy assistant','WattBot gives general help with using this website and understanding the estimates.']],
+ [/^home$|^back$|^next$/i,['Navigation','Use this control to move between the pages of the website.']]
+];
+function explainTerm(term){
+ const clean=String(term||'').replace(/[⚡☀️📊📋💰🔌💡📈🧾⏱️]/g,'').replace(/[^\p{L}\p{N}₹%]+/gu,' ').trim();
+ let match=glossaryRules.find(([re])=>re.test(clean));
+ let title=match?match[1][0]:clean||'Website term';
+ let body=match?match[1][1]:'This is a label used on this page. It describes the information shown here. The value is an estimate based on the details entered into the website.';
+ const lang=$('botLang')?.value||'Hinglish';
+ if(lang==='Hinglish'){
+   body=body.replace('This tells you','Iska matlab hai').replace('This is electricity','Ye electricity').replace('This is the price','Ye price').replace('This is how long','Ye batata hai ki kitni der').replace('This section summarizes','Ye section aapko short mein batata hai').replace('This switch changes','Is switch se website ki calculation badalti hai').replace('For this project, daytime means','Is project mein daytime ka matlab').replace('For this project, night-time means','Is project mein night-time ka matlab');
+ }
+ if(lang==='Hindi'){
+   const hindi={
+    'Electricity units':'बिजली की यूनिट','Appliance power':'उपकरण की बिजली क्षमता','Electricity rate':'बिजली की दर','Grid electricity':'बिजली कंपनी की सप्लाई','Solar electricity':'सोलर बिजली','Peak hours':'महंगे बिजली वाले घंटे','Lower-rate hours':'कम दर वाले घंटे','Standby power':'बंद होने पर भी इस्तेमाल होने वाली बिजली','Efficiency rating':'बिजली बचाने की क्षमता','Estimated electricity cost':'बिजली का अनुमानित खर्च','Appliance details':'उपकरण की जानकारी','Usage time':'उपयोग का समय','Daytime usage':'दिन के समय का उपयोग','Night-time usage':'रात के समय का उपयोग','Estimated savings or balance':'अनुमानित बचत या बाकी बजट','Solar setting':'सोलर सेटिंग','Energy assistant':'ऊर्जा सहायक'
+   };
+   title=hindi[title]||title;
+   body=body.replace('This project uses an example rate of ₹8 per unit.','इस प्रोजेक्ट में उदाहरण के लिए ₹8 प्रति यूनिट माना गया है.').replace('1 kWh is equal to 1 electricity unit.','1 kWh यानी बिजली की 1 यूनिट.').replace('The website estimates this amount; it is not reading a live solar meter.','वेबसाइट इसका अनुमान दिखाती है, लाइव सोलर मीटर की रीडिंग नहीं.');
+ }
+ $('glossaryTitle').textContent=title;
+ $('glossaryBody').textContent=body;
+ $('glossaryModal').classList.add('show');
+}
+function closeGlossary(){$('glossaryModal').classList.remove('show')}
+function addTermHelp(){
+ const selectors='.page h2,.page h3,.page h4,.metric small,.page .eyebrow,.option-card h3,.custom-box h3';
+ document.querySelectorAll(selectors).forEach(el=>{
+   if(el.dataset.helpAdded)return;
+   const term=el.textContent.trim().replace(/^\W+/, '');
+   if(!term||term.length>90||el.closest('.term-help'))return;
+   el.dataset.helpAdded='1';
+   const b=document.createElement('button');b.type='button';b.className='term-help';b.textContent='ⓘ meaning';
+   b.setAttribute('aria-label','Explain '+term);
+   b.onclick=ev=>{ev.stopPropagation();explainTerm(term)};
+   el.insertAdjacentElement('afterend',b);
+ });
+}
+const glossaryStyle=document.createElement('style');glossaryStyle.textContent='.term-help{display:block;width:max-content;background:transparent;color:#91cdb5;font-size:9px;font-weight:500;padding:1px 0 0;margin:0 0 5px;text-align:left;line-height:1.15;border:0;cursor:pointer}.term-help:active{color:#d1fae5}.optimal-title{text-align:center}.optimal-title+.term-help{text-align:center;margin:0 auto 8px}';document.head.appendChild(glossaryStyle);
+new MutationObserver(()=>addTermHelp()).observe(document.body,{childList:true,subtree:true});setTimeout(addTermHelp,100);
+</script></body></html>

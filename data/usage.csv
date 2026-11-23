@@ -1,0 +1,21 @@
+id,name,start,end,watts,category
+1,AC,18:00,21:00,1600,Cooling
+2,Fan,14:00,22:00,70,Cooling
+3,Refrigerator,00:00,23:59,180,Kitchen
+4,Heater,08:00,20:00,2000,Heating
+5,TV,08:00,20:00,120,Entertainment
+6,Light,08:00,09:00,15,Lighting
+7,Washing Machine,08:00,20:00,550,Laundry
+8,Microwave,19:00,21:00,1100,Kitchen
+9,Computer,08:00,22:00,280,Computing
+10,Water Pump,18:00,21:00,750,Utility
+11,Iron,08:00,22:00,1000,Laundry
+12,Kettle,08:00,21:00,1600,Kitchen
+13,Air Purifier,06:00,08:00,55,Air_Quality
+14,Water Heater,08:00,09:00,2000,Heating
+15,Dishwasher,18:00,08:00,1600,Kitchen
+16,Printer,19:00,09:00,320,Office
+17,Vacuum Cleaner,06:00,08:00,1100,Cleaning
+18,Toaster,07:00,21:00,850,Kitchen
+19,Router,00:00,23:59,18,Networking
+20,EV Charger,06:00,08:00,4500,Vehicle
